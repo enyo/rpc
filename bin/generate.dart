@@ -196,13 +196,13 @@ class ClientApiGenerator {
     });
   }
 
-  Future<List<String>> generateDiscovery() async {
+  Future<List> generateDiscovery() async {
     return _withServer((HttpServer server) async {
       return await _execute(server.port, 'discovery');
     });
   }
 
-  Future<List<DescriptionImportPair>> generateDiscoveryWithImports() async {
+  Future<List> generateDiscoveryWithImports() async {
     return _withServer((HttpServer server) async {
       Map<String, Map<String, String>> result =
           await _execute(server.port, 'discoveryWithImports');
@@ -265,7 +265,7 @@ class ClientApiGenerator {
     return completer.future;
   }
 
-  _withServer(f(HttpServer server)) async {
+  Future<List> _withServer(f(HttpServer server)) async {
     Future _httpSourceLoader(HttpRequest request) async {
       var path = request.uri.path;
       if (path.contains('/packages/')) {
@@ -297,9 +297,10 @@ class ClientApiGenerator {
   static Future _isolateTrampoline(List args) async {
     SendPort messagePort = args[5];
     SendPort errorPort = args[6];
+    print(args);
     return await Isolate.spawnUri(
       Uri.parse(args[0]),
-      [args[1], args[2], args[3], args[4]],
+      [args[1]?.toString(), args[2]?.toString(), args[3]?.toString(), args[4]?.toString()],
       messagePort,
       onError: errorPort);
   }
