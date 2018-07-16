@@ -50,11 +50,13 @@ ArgParser globalArgParser() {
 }
 
 ArgResults parseArguments(ArgParser parser, List<String> arguments) {
+  ArgResults results;
   try {
-    return parser.parse(arguments);
+    results = parser.parse(arguments);
   } on FormatException catch (e) {
     dieWithUsage('Error parsing arguments:\n${e.message}\n');
   }
+  return results;
 }
 
 void dieWithUsage([String message]) {

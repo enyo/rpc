@@ -326,7 +326,7 @@ class MapProperty extends ApiConfigSchemaProperty {
       throw new BadRequestError('Invalid property, should be of type \'Map\'');
     }
     var result = {};
-    (mapObject as Map).forEach((String key, object) {
+    (mapObject as Map).forEach((key, object) {
       result[key] = _additionalProperty.toResponse(object);
     });
     return result;
@@ -338,7 +338,7 @@ class MapProperty extends ApiConfigSchemaProperty {
     }
     // Map from String to the type of the additional property.
     var result = {};
-    (encodedMap as Map).forEach((String key, encodedObject) {
+    (encodedMap as Map).forEach((key, encodedObject) {
       result[key] = _additionalProperty.fromRequest(encodedObject);
     });
     return result;

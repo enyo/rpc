@@ -45,18 +45,18 @@ Future<PostData> _asText(ParsedHttpApiRequest request) {
 
 Future<PostData> _asFormData(ParsedHttpApiRequest request) {
   final ContentType contentType = request.contentType;
-  return request.body
+  final Stream<Future> futures = request.body
       .transform(
           new MimeMultipartTransformer(contentType.parameters['boundary']))
       .map(_HttpMultipartFormData.parse)
       .map((_HttpMultipartFormData multipart) {
     Future future;
     if (multipart.isText) {
-      future = multipart
+      future = (multipart as _HttpMultipartFormData<String>)
           .fold(new StringBuffer(), _fillStringBuffer)
           .then((StringBuffer buffer) => buffer.toString());
     } else {
-      future = multipart
+      future = (multipart as _HttpMultipartFormData<List<int>>)
           .fold(new BytesBuilder(), _fillBytesBuilder)
           .then((BytesBuilder builder) => builder.takeBytes());
     }
@@ -72,10 +72,11 @@ Future<PostData> _asFormData(ParsedHttpApiRequest request) {
       }
       return [multipart.contentDisposition.parameters['name'], data];
     });
-  }).fold([],
-          (List<Future> futureList, Future future) => futureList..add(future))
+  });
+
+  return futures.fold(<Future>[], (List<Future> futureList, Future future) => futureList..add(future))
       .then(Future.wait)
-      .then((List<List> parts) {
+      .then((List parts) {
     Map<String, dynamic> map = {};
     // Form input file multiple
     for (var part in parts) {
@@ -130,7 +131,7 @@ Future<PostData> parseRequestBody(ParsedHttpApiRequest request) {
   return _asBinary(request);
 }
 
-class _HttpMultipartFormData extends Stream {
+class _HttpMultipartFormData<T> extends Stream<T> {
   final ContentType contentType;
   final HeaderValue contentDisposition;
   final HeaderValue contentTransferEncoding;
@@ -201,7 +202,7 @@ class _HttpMultipartFormData extends Stream {
     }
   }
 
-  StreamSubscription listen(void onData(data),
+  StreamSubscription<T> listen(void onData(T data),
           {void onDone(), Function onError, bool cancelOnError}) =>
       _stream.listen(onData,
           onDone: onDone, onError: onError, cancelOnError: cancelOnError);
