@@ -276,11 +276,11 @@ class ClientApiGenerator {
       } else if (path.contains('.packages')) {
         // Didn't find .packages so revert to /packages/.
         request.response
-          ..statusCode = HttpStatus.NOT_FOUND
+          ..statusCode = HttpStatus.notFound
           ..close();
       } else {
         request.response
-          ..add(UTF8.encode(generatorSource))
+          ..add(utf8.encode(generatorSource))
           ..close();
       }
     }
